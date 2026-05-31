@@ -1,0 +1,32 @@
+{% extends 'plaintes/base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Mes Notifications{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-body p-0">
+    {% if notifs %}
+    <ul class="list-group list-group-flush">
+      {% for n in notifs %}
+      <li class="list-group-item {% if not n.lue %}list-group-item-warning{% endif %}">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div>{{ n.message }}</div>
+            <div class="text-muted small mt-1">
+              Plainte #{{ n.plainte.pk }} —
+              <a href="{% url 'detail_plainte' n.plainte.pk %}">Voir la plainte</a>
+            </div>
+          </div>
+          <div class="text-muted small text-nowrap ms-3">{{ n.date|date:"d/m/Y H:i" }}</div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-bell-slash" style="font-size:2rem"></i>
+      <div class="mt-2">Aucune notification.</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'plaintes/base.html' %}
+{% block title %}Utilisateurs{% endblock %}
+{% block page_title %}Gestion des Utilisateurs{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr><th>Utilisateur</th><th>Email</th><th>Rôle</th><th>Plaintes</th><th>Changer le rôle</th></tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div class="fw-semibold">{{ u.get_full_name|default:u.username }}</div>
+            <div class="text-muted small">@{{ u.username }}</div>
+          </td>
+          <td>{{ u.email|default:"—" }}</td>
+          <td>
+            <span class="badge bg-secondary">{{ u.profil.get_role_display|default:"Citoyen" }}</span>
+          </td>
+          <td>{{ u.plaintes.count }}</td>
+          <td>
+            {% if u != request.user %}
+            <form method="post" action="{% url 'changer_role' u.pk %}" class="d-flex gap-2">
+              {% csrf_token %}
+              <select name="role" class="form-select form-select-sm" style="width:auto">
+                <option value="citoyen" {% if u.profil.role == 'citoyen' %}selected{% endif %}>Citoyen</option>
+                <option value="employe" {% if u.profil.role == 'employe' %}selected{% endif %}>Employé</option>
+                <option value="responsable" {% if u.profil.role == 'responsable' %}selected{% endif %}>Responsable</option>
+                <option value="administrateur" {% if u.profil.role == 'administrateur' %}selected{% endif %}>Admin</option>
+              </select>
+              <button type="submit" class="btn btn-sm btn-primary">OK</button>
+            </form>
+            {% else %}
+            <span class="text-muted small">Vous-même</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

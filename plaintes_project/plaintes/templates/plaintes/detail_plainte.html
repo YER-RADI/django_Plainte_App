@@ -1,0 +1,143 @@
+{% extends 'plaintes/base.html' %}
+{% block title %}Plainte #{{ plainte.pk }}{% endblock %}
+{% block page_title %}Détail de la plainte #{{ plainte.pk }}{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <!-- Info plainte -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">{{ plainte.titre }}</span>
+        <div class="d-flex gap-2">
+          <span class="badge badge-{{ plainte.priorite }}">{{ plainte.get_priorite_display }}</span>
+          <span class="badge badge-{{ plainte.statut }}">{{ plainte.get_statut_display }}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <div class="text-muted small">Citoyen</div>
+            <div class="fw-semibold">{{ plainte.citoyen.get_full_name|default:plainte.citoyen.username }}</div>
+          </div>
+          <div class="col-sm-6">
+            <div class="text-muted small">Catégorie</div>
+            <div>{{ plainte.categorie|default:"—" }}</div>
+          </div>
+          <div class="col-sm-6">
+            <div class="text-muted small">Localisation</div>
+            <div>{{ plainte.localisation|default:"—" }}</div>
+          </div>
+          <div class="col-sm-6">
+            <div class="text-muted small">Responsable</div>
+            <div>
+              {% if plainte.responsable %}
+                {{ plainte.responsable.get_full_name|default:plainte.responsable.username }}
+              {% else %}
+                —
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="text-muted small">Date de soumission</div>
+            <div>{{ plainte.date_soumission|date:"d/m/Y à H:i" }}</div>
+          </div>
+          <div class="col-sm-6">
+            <div class="text-muted small">Dernière mise à jour</div>
+            <div>{{ plainte.date_mise_a_jour|date:"d/m/Y à H:i" }}</div>
+          </div>
+          <div class="col-12">
+            <div class="text-muted small">Description</div>
+            <div class="mt-1 p-3 bg-light rounded">{{ plainte.description|linebreaks }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historique actions -->
+    <div class="card mb-4">
+      <div class="card-header fw-semibold"><i class="bi bi-clock-history me-2"></i>Historique des actions</div>
+      <div class="card-body">
+        {% if actions %}
+        <div class="timeline">
+          {% for action in actions %}
+          <div class="d-flex gap-3 mb-3">
+            <div class="flex-shrink-0">
+              <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white"
+                   style="width:36px;height:36px;font-size:.8rem">
+                {{ action.auteur.username|slice:":1"|upper }}
+              </div>
+            </div>
+            <div class="flex-grow-1">
+              <div class="small text-muted">{{ action.auteur.get_full_name|default:action.auteur.username }} — {{ action.date|date:"d/m/Y H:i" }}</div>
+              <div class="mt-1 p-2 bg-light rounded">{{ action.description }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">Aucune action enregistrée.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Ajouter action -->
+    {% if can_add_action %}
+    <div class="card">
+      <div class="card-header fw-semibold"><i class="bi bi-plus-circle me-2"></i>Ajouter une action</div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="add_action" value="1">
+          {% for field in action_form %}
+          <div class="mb-3">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+          </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Ajouter l'action
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Mise à jour (staff) -->
+  <div class="col-lg-4">
+    {% if can_edit %}
+    <div class="card">
+      <div class="card-header fw-semibold"><i class="bi bi-pencil me-2"></i>Modifier la plainte</div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="update_plainte" value="1">
+          {% for field in update_form %}
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">{{ field.label }}</label>
+            {{ field }}
+          </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-success w-100">
+            <i class="bi bi-save me-1"></i>Enregistrer
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card mt-3">
+      <div class="card-body">
+        <a href="{% url 'liste_plaintes' %}" class="btn btn-outline-secondary w-100 mb-2">
+          <i class="bi bi-arrow-left me-1"></i>Retour à la liste
+        </a>
+        {% if plainte.citoyen == request.user or role == 'administrateur' %}
+        <a href="{% url 'supprimer_plainte' plainte.pk %}" class="btn btn-outline-danger w-100">
+          <i class="bi bi-trash me-1"></i>Supprimer
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'plaintes/base.html' %}
+{% block title %}Liste des Plaintes{% endblock %}
+{% block page_title %}Liste des Plaintes{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <input type="text" name="q" class="form-control" placeholder="Rechercher..." value="{{ request.GET.q }}">
+      </div>
+      <div class="col-md-2">
+        <select name="statut" class="form-select">
+          <option value="">Tous les statuts</option>
+          {% for val, label in statut_choices %}
+          <option value="{{ val }}" {% if request.GET.statut == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="priorite" class="form-select">
+          <option value="">Toutes les priorités</option>
+          {% for val, label in priorite_choices %}
+          <option value="{{ val }}" {% if request.GET.priorite == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="categorie" class="form-select">
+          <option value="">Toutes les catégories</option>
+          {% for cat in categories %}
+          <option value="{{ cat.pk }}" {% if request.GET.categorie == cat.pk|stringformat:"i" %}selected{% endif %}>{{ cat.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-fill">Filtrer</button>
+        <a href="{% url 'liste_plaintes' %}" class="btn btn-outline-secondary">✕</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <span class="text-muted">{{ plaintes|length }} plainte(s) trouvée(s)</span>
+  {% if role == 'citoyen' %}
+  <a href="{% url 'soumettre_plainte' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Nouvelle plainte
+  </a>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Titre</th>
+          {% if role != 'citoyen' %}<th>Citoyen</th>{% endif %}
+          <th>Catégorie</th>
+          <th>Priorité</th>
+          <th>Statut</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in plaintes %}
+        <tr>
+          <td class="text-muted">#{{ p.pk }}</td>
+          <td class="fw-semibold">{{ p.titre|truncatechars:40 }}</td>
+          {% if role != 'citoyen' %}
+          <td>{{ p.citoyen.get_full_name|default:p.citoyen.username }}</td>
+          {% endif %}
+          <td>{{ p.categorie|default:"—" }}</td>
+          <td><span class="badge badge-{{ p.priorite }}">{{ p.get_priorite_display }}</span></td>
+          <td><span class="badge badge-{{ p.statut }}">{{ p.get_statut_display }}</span></td>
+          <td class="text-muted small">{{ p.date_soumission|date:"d/m/Y" }}</td>
+          <td>
+            <a href="{% url 'detail_plainte' p.pk %}" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center text-muted py-5">
+            <i class="bi bi-inbox" style="font-size:2rem"></i>
+            <div class="mt-2">Aucune plainte trouvée.</div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

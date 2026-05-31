@@ -1,0 +1,95 @@
+{% extends 'plaintes/base.html' %}
+{% block title %}Tableau de bord Staff{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card" style="background: linear-gradient(135deg,#1a56db,#1e40af)">
+      <div class="h3 fw-bold">{{ stats.total }}</div>
+      <div class="small opacity-75">Total des plaintes</div>
+      <i class="bi bi-clipboard-data stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card" style="background: linear-gradient(135deg,#f59e0b,#d97706)">
+      <div class="h3 fw-bold">{{ stats.en_cours }}</div>
+      <div class="small opacity-75">En cours</div>
+      <i class="bi bi-hourglass-split stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card" style="background: linear-gradient(135deg,#10b981,#059669)">
+      <div class="h3 fw-bold">{{ stats.resolues }}</div>
+      <div class="small opacity-75">Résolues</div>
+      <i class="bi bi-check-circle stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card" style="background: linear-gradient(135deg,#ef4444,#dc2626)">
+      <div class="h3 fw-bold">{{ stats.urgentes }}</div>
+      <div class="small opacity-75">Urgentes</div>
+      <i class="bi bi-exclamation-triangle stat-icon"></i>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">Plaintes récentes</span>
+        <a href="{% url 'liste_plaintes' %}" class="btn btn-sm btn-outline-primary">Tout voir</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr><th>#</th><th>Titre</th><th>Citoyen</th><th>Priorité</th><th>Statut</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for p in plaintes %}
+            <tr>
+              <td class="text-muted small">#{{ p.pk }}</td>
+              <td class="fw-semibold">{{ p.titre|truncatechars:35 }}</td>
+              <td>{{ p.citoyen.get_full_name|default:p.citoyen.username }}</td>
+              <td><span class="badge badge-{{ p.priorite }}">{{ p.get_priorite_display }}</span></td>
+              <td><span class="badge badge-{{ p.statut }}">{{ p.get_statut_display }}</span></td>
+              <td><a href="{% url 'detail_plainte' p.pk %}" class="btn btn-sm btn-outline-primary">Voir</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted py-4">Aucune plainte.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header fw-semibold">Plaintes par catégorie</div>
+      <ul class="list-group list-group-flush">
+        {% for cat in par_categorie %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ cat.nom }}
+          <span class="badge bg-primary rounded-pill">{{ cat.nb }}</span>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted text-center">Aucune catégorie</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% if notifs %}
+    <div class="card mt-3">
+      <div class="card-header fw-semibold"><i class="bi bi-bell me-1"></i>Notifications</div>
+      <ul class="list-group list-group-flush">
+        {% for n in notifs|slice:":4" %}
+        <li class="list-group-item small">
+          <div class="text-muted">{{ n.date|date:"d/m H:i" }}</div>
+          {{ n.message|truncatechars:60 }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

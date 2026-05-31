@@ -1,0 +1,27 @@
+{% extends 'plaintes/base.html' %}
+{% block title %}Supprimer la plainte{% endblock %}
+{% block page_title %}Confirmer la suppression{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white fw-semibold">
+        <i class="bi bi-exclamation-triangle me-2"></i>Confirmer la suppression
+      </div>
+      <div class="card-body">
+        <p>Êtes-vous sûr de vouloir supprimer la plainte <strong>« {{ plainte.titre }} »</strong> ?</p>
+        <p class="text-muted">Cette action est irréversible. Toutes les actions associées seront également supprimées.</p>
+        <div class="d-flex gap-3 mt-4">
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+              <i class="bi bi-trash me-1"></i>Oui, supprimer
+            </button>
+          </form>
+          <a href="{% url 'detail_plainte' plainte.pk %}" class="btn btn-outline-secondary">Annuler</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

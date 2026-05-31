@@ -1,0 +1,30 @@
+{% extends 'plaintes/base.html' %}
+{% block auth_content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1e3a5f 0%, #0f2340 100%);">
+  <div class="card p-4 my-4" style="width: 100%; max-width: 480px;">
+    <div class="text-center mb-4">
+      <i class="bi bi-person-plus text-primary" style="font-size: 2.5rem;"></i>
+      <h3 class="fw-bold mt-2">Créer un compte</h3>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label fw-semibold">{{ field.label }}</label>
+        <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}"
+          class="form-control {% if field.errors %}is-invalid{% endif %}"
+          placeholder="{{ field.label }}" {% if field.value %}value="{{ field.value }}"{% endif %}>
+        {% for error in field.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary w-100 mt-2">
+        <i class="bi bi-check-circle me-2"></i>Créer mon compte
+      </button>
+    </form>
+    <div class="text-center mt-3">
+      <a href="{% url 'login' %}">Déjà inscrit ? Se connecter</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
